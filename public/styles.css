@@ -1,57 +1,65 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
-
-:root {
-  --primary-color: #4361ee;
-  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
 body {
-  background: var(--bg-gradient);
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  background-color: #f8f9fc;
+  font-family: 'Inter', sans-serif;
 }
 
 .sidebar {
-  min-width: 250px;
-  max-width: 250px;
-  background: #2b2d42;
-  color: #fff;
-  transition: all 0.3s;
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 
-.nav-link {
-  color: #adb5bd;
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin: 5px 15px;
+.main-content {
+  margin-left: 280px;
+  transition: all 0.3s ease;
 }
 
-.nav-link.active {
-  background: var(--primary-color) !important;
+.active-menu {
+  background-color: #4e73df !important;
   color: white !important;
+  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
 }
 
-.nav-link:hover {
-  background: rgba(255,255,255,0.1);
-  color: white;
+.glass-card {
+  background: white;
+  border: none;
+  border-radius: 1.25rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    left: -280px;
+  }
+  .sidebar.active {
+    left: 0;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+  .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+  }
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  border: none;
-  border-radius: 12px;
-  padding: 12px 25px;
-  transition: transform 0.2s;
+  padding: 0.8rem 2rem;
+  font-weight: 600;
+  border-radius: 10px;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
