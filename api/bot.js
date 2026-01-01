@@ -1,52 +1,41 @@
-const { Telegraf } = require('telegraf');
-const bot = new Telegraf('8445574692:AAHdgOPNM1IJUtLDGMpEwurkApUTDoaUjdw');
+const BOT_TOKEN = '8445574692:AAHdgOPNM1IJUtLDGMpEwurkApUTDoaUjdw';
 
-bot.start((ctx) => ctx.reply('স্বাগতম! /ck <imei>, /snid <nid> অথবা /tx কমান্ড ব্যবহার করুন।'));
+export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(200).send('Bot is running...');
 
-// IMEI Check
-bot.command('ck', async (ctx) => {
-    const imei = ctx.message.text.split(' ')[1];
-    if (!imei) return ctx.reply('❌ IMEI দিন। উদা: /ck 123456789012345');
-    
-    try {
-        const res = await fetch('https://neir.btrc.gov.bd/services/NEIRPortalService/api/imei-status-check', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
+    const { message } = req.body;
+    if (!message || !message.text) return res.status(200).send('OK');
+
+    const chatId = message.chat.id;
+    const text = message.text;
+
+    const sendMsg = async (msg) => {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+        });
+    };
+
+    if (text.startsWith('/start')) {
+        return sendMsg("👋 স্বাগতম!\n\n🔍 /ck <IMEI> - স্ট্যাটাস চেক\n🆔 /snid <NID> <TOKEN> - লিস্ট চেক\n🔄 /tx <IMEI> <OLD_NUM> <NID_4> <NEW_NUM> <TOKEN>");
+    }
+
+    if (text.startsWith('/ck')) {
+        const imei = text.split(' ')[1];
+        if (!imei) return sendMsg("❌ IMEI দিন। উদা: `/ck 860496059396795` ");
+        
+        const response = await fetch('https://neir.btrc.gov.bd/services/NEIRPortalService/api/imei-status-check', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imei })
         });
-        const data = await res.json();
-        const status = data.replyMessage.msg === 'WL' ? '✅ নিবন্ধিত' : '❌ নিবন্ধিত নয়';
-        ctx.reply(`📱 IMEI: ${imei}\n📢 স্ট্যাটাস: ${status}`);
-    } catch (e) { ctx.reply('সার্ভার ত্রুটি!'); }
-});
-
-// NID Check
-bot.command('snid', async (ctx) => {
-    const nid = ctx.message.text.split(' ')[1];
-    if (!nid) return ctx.reply('❌ NID দিন।');
-    
-    try {
-        const res = await fetch('https://neir.btrc.gov.bd/services/NEIRPortalService/api/doc_imei_list', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ docId: nid, docType: "SNID" })
-        });
-        const data = await res.json();
-        let msg = `📂 NID: ${nid}\n\n`;
-        if(Array.isArray(data.replyMessage)) {
-            data.replyMessage.forEach(i => msg += `🔹 ${i.imei} (${i.regState})\n`);
-        } else { msg += "কোন তথ্য পাওয়া যায়নি।"; }
-        ctx.reply(msg);
-    } catch (e) { ctx.reply('ত্রুটি!'); }
-});
-
-module.exports = async (req, res) => {
-    try {
-        if (req.method === 'POST') {
-            await bot.handleUpdate(req.body);
-            res.status(200).send('OK');
-        } else {
-            res.status(200).send('Bot is running...');
-        }
-    } catch (e) {
-        res.status(500).send('Error');
+        const data = await response.json();
+        const resMsg = data.replyMessage.msg === 'WL' ? '✅ নিবন্ধিত রয়েছে।' : '❌ নিবন্ধিত নয়।';
+        return sendMsg(`📱 *IMEI:* ${imei}\n📢 *Status:* ${resMsg}`);
     }
-};
+
+    // NID এবং Transfer বটের মাধ্যমে করতে হলে টোকেন অনেক বড় তাই বট ইউজারকে ওয়েব ব্যবহার করতে বলা ভালো।
+    // তবে বটের কোড ঠিক থাকলে এখন মেসেজ আসবে।
+    res.status(200).send('OK');
+}
