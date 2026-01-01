@@ -11,6 +11,8 @@
     "react": "latest",
     "react-dom": "latest",
     "telegraf": "^4.12.2",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "bootstrap": "^5.3.2",
+    "animate.css": "^4.1.1"
   }
 }
