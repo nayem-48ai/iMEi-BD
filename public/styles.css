@@ -1,0 +1,57 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+:root {
+  --primary-color: #4361ee;
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+body {
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+.sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  background: #2b2d42;
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.nav-link {
+  color: #adb5bd;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 5px 15px;
+}
+
+.nav-link.active {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 25px;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
