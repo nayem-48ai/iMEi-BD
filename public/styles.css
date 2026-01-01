@@ -63,3 +63,29 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+
+.sidebar-nav {
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  z-index: 1050;
+  transition: 0.3s;
+}
+
+.main-body { margin-left: 280px; transition: 0.3s; min-height: 100vh; background: #f4f7fe; }
+
+.active-link { background: #4361ee; color: white !important; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); }
+
+.glass-card { background: white; border-radius: 24px; }
+
+@media (max-width: 768px) {
+  .sidebar-nav { left: -280px; }
+  .sidebar-nav.show { left: 0; }
+  .main-body { margin-left: 0; }
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+}
+
+.custom-search { border-radius: 50px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee; }
+.custom-search input:focus { box-shadow: none; background: #fff; }
