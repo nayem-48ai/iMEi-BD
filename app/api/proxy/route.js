@@ -6,8 +6,7 @@ export async function POST(request) {
 
     const headers = {
       'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 13; RMX3286) AppleWebKit/537.36',
-      'Accept': 'application/json, text/plain, */*',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36',
     };
 
     if (token) {
@@ -19,6 +18,7 @@ export async function POST(request) {
       headers: headers,
     };
 
+    // শুধুমাত্র POST/PUT হলে বডি পাঠাবে, GET-এ বডি পাঠানো যাবে না
     if (method !== 'GET' && payload) {
       fetchOptions.body = JSON.stringify(payload);
     }
@@ -27,6 +27,6 @@ export async function POST(request) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ success: false, message: "BTRC Server Connection Failed" }, { status: 500 });
+    return NextResponse.json({ success: false, message: "BTRC Server Error" }, { status: 500 });
   }
 }
