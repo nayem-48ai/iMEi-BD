@@ -8,25 +8,24 @@ import { useEffect } from 'react';
 
 export default function RootLayout({ children }) {
   useEffect(() => {
-    require("bootstrap/dist/js/bootstrap.bundle.min.js");
+    // Bootstrap JS Load
+    import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
 
   return (
     <html lang="en">
       <head>
-        <title>NEIR IMEI BD - Advanced</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
       <body>
         <ThemeProvider>
-          <div className="d-flex overflow-hidden" style={{ minHeight: '100vh' }}>
-            {/* Desktop Sidebar */}
+          <div className="d-flex">
             <Sidebar />
-            
-            <div className="flex-grow-1 d-flex flex-column" style={{ width: '100%', overflowY: 'auto' }}>
+            <div className="flex-grow-1 d-flex flex-column vh-100 overflow-auto">
               <Navbar />
-              <main className="container-fluid p-3 p-md-4">
+              <div className="container-fluid p-3 p-md-5">
                 {children}
-              </main>
+              </div>
             </div>
           </div>
         </ThemeProvider>
