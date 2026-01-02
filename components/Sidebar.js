@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Smartphone, ShieldCheck, RefreshCw, User, LogIn } from 'lucide-react';
+import { Smartphone, ShieldCheck, RefreshCw, User, LogIn, LayoutDashboard } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
@@ -13,48 +13,55 @@ export default function Sidebar() {
   }, [pathname]);
 
   const navItems = [
-    { name: 'Check IMEI', href: '/', icon: <Smartphone size={20}/> },
-    { name: 'NID List', href: '/nid-list', icon: <ShieldCheck size={20}/> },
-    { name: 'Transfer', href: '/transfer', icon: <RefreshCw size={20}/> },
+    { name: 'IMEI Check', href: '/', icon: <Smartphone size={20}/> },
+    { name: 'NID IMEI List', href: '/nid-list', icon: <ShieldCheck size={20}/> },
+    { name: 'Device Transfer', href: '/transfer', icon: <RefreshCw size={20}/> },
   ];
+
+  const NavItem = ({ item }) => (
+    <Link 
+      href={item.href} 
+      className={`nav-link d-flex align-items-center gap-3 p-3 rounded-4 mb-2 transition-all ${pathname === item.href ? 'active shadow-lg' : 'hover-effect'}`}
+      // মোবাইলে ক্লিক করলে মেনু বন্ধ হওয়ার জন্য
+      data-bs-dismiss="offcanvas"
+    >
+      {item.icon} <span className="fw-medium">{item.name}</span>
+    </Link>
+  );
 
   return (
     <>
-      <div className="d-none d-lg-flex flex-column border-end bg-body shadow-sm vh-100 sticky-top" style={{ width: '280px' }}>
-        <div className="p-4 border-bottom"><h4 className="fw-bold text-primary mb-0">IMEI BD</h4></div>
-        <div className="nav nav-pills flex-column px-3 mt-4 gap-2">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className={`nav-link d-flex align-items-center gap-3 p-3 rounded-4 transition-all ${pathname === item.href ? 'active shadow' : 'text-secondary'}`}>
-              {item.icon} {item.name}
-            </Link>
-          ))}
-          <hr />
+      {/* Desktop Sidebar */}
+      <div className="d-none d-lg-flex flex-column border-end vh-100 sticky-top bg-body shadow-sm" style={{ width: '280px' }}>
+        <div className="p-4 border-bottom d-flex align-items-center gap-2">
+          <div className="bg-primary p-2 rounded-3 text-white"><LayoutDashboard size={24}/></div>
+          <h5 className="fw-bold m-0 text-primary">NEIR Pro</h5>
+        </div>
+        <div className="p-3 mt-3">
+          {navItems.map(item => <NavItem key={item.href} item={item} />)}
+          <hr className="my-4 opacity-10" />
           {isLoggedIn ? (
-            <Link href="/profile" className={`nav-link d-flex align-items-center gap-3 p-3 rounded-4 ${pathname === '/profile' ? 'active shadow' : 'text-secondary'}`}>
-              <User size={20}/> Profile
-            </Link>
+            <NavItem item={{ name: 'My Profile', href: '/profile', icon: <User size={20}/> }} />
           ) : (
-            <Link href="/login" className={`nav-link d-flex align-items-center gap-3 p-3 rounded-4 ${pathname === '/login' ? 'active shadow' : 'text-secondary'}`}>
-              <LogIn size={20}/> Login
-            </Link>
+            <NavItem item={{ name: 'Login Portal', href: '/login', icon: <LogIn size={20}/> }} />
           )}
         </div>
       </div>
 
-      {/* Mobile Drawer (Needs trigger from Navbar) */}
-      <div className="offcanvas offcanvas-start" tabIndex="-1" id="mobileSidebar">
+      {/* Mobile Sidebar (Offcanvas) */}
+      <div className="offcanvas offcanvas-start bg-body" tabIndex="-1" id="mobileSidebar">
         <div className="offcanvas-header border-bottom">
-          <h5 className="fw-bold mb-0">Menu</h5>
+          <h5 className="fw-bold m-0 text-primary">NEIR Menu</h5>
           <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-        <div className="offcanvas-body p-0">
-          <div className="nav nav-pills flex-column px-3 mt-3 gap-2">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} data-bs-dismiss="offcanvas" className={`nav-link d-flex align-items-center gap-3 p-3 rounded-4 ${pathname === item.href ? 'active shadow' : ''}`}>
-                {item.icon} {item.name}
-              </Link>
-            ))}
-          </div>
+        <div className="offcanvas-body p-3">
+          {navItems.map(item => <NavItem key={item.href} item={item} />)}
+          <hr />
+          {isLoggedIn ? (
+            <NavItem item={{ name: 'My Profile', href: '/profile', icon: <User size={20}/> }} />
+          ) : (
+            <NavItem item={{ name: 'Login Portal', href: '/login', icon: <LogIn size={20}/> }} />
+          )}
         </div>
       </div>
     </>
