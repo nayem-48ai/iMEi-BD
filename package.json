@@ -1,18 +1,20 @@
 {
-  "name": "neir-imei-checker",
+  "name": "neir-helper-app",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "telegraf": "^4.12.2",
-    "node-fetch": "^2.6.7",
+    "axios": "^1.6.0",
     "bootstrap": "^5.3.2",
-    "animate.css": "^4.1.1"
+    "framer-motion": "^10.16.4",
+    "jwt-decode": "^4.0.0",
+    "next": "14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.11.0"
   }
 }
