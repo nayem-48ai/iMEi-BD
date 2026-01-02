@@ -2,14 +2,16 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     try {
-        const body = await request.json();
-        const { url, payload, token } = body;
+        const { url, payload, token } = await request.json();
         
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
+                'Authorization': token ? `Bearer ${token}` : '',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Referer': 'https://neir.btrc.gov.bd/',
+                'Origin': 'https://neir.btrc.gov.bd'
             },
             body: JSON.stringify(payload)
         });
@@ -17,6 +19,6 @@ export async function POST(request) {
         const data = await response.json();
         return NextResponse.json(data);
     } catch (error) {
-        return NextResponse.json({ success: false, message: "API Server Error" }, { status: 500 });
+        return NextResponse.json({ success: false, message: "BTRC API Down" }, { status: 500 });
     }
 }
