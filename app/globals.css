@@ -1,52 +1,55 @@
 :root {
-  --primary-color: #0d6efd;
-  --bg-body: #f8f9fa;
+  --bg-primary: #f8fafc;
   --bg-card: #ffffff;
-  --text-main: #212529;
-  --border-color: #dee2e6;
-  --shadow: 0 8px 30px rgba(0,0,0,0.05);
+  --text-main: #0f172a;
+  --border-color: #e2e8f0;
+  --primary: #3b82f6;
 }
 
 [data-bs-theme='dark'] {
-  --bg-body: #0f172a; /* Deep Navy Night */
-  --bg-card: #1e293b; /* Slate Gray */
+  --bg-primary: #0f172a; /* Deep Navy/Slate */
+  --bg-card: #1e293b;    /* Slightly lighter Slate */
   --text-main: #f1f5f9;
   --border-color: #334155;
-  --shadow: 0 10px 40px rgba(0,0,0,0.3);
+  --primary: #60a5fa;
 }
 
 body {
-  background-color: var(--bg-body) !important;
-  color: var(--text-main) !important;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
   transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
 }
 
 .card {
   background-color: var(--bg-card) !important;
   border: 1px solid var(--border-color) !important;
-  box-shadow: var(--shadow) !important;
   color: var(--text-main) !important;
 }
 
 .nav-link {
   color: var(--text-main) !important;
-  opacity: 0.8;
+  transition: 0.2s;
 }
 
 .nav-link.active {
-  background-color: var(--primary-color) !important;
-  color: white !important;
-  opacity: 1;
+  background-color: var(--primary) !important;
+  color: #fff !important;
 }
 
-/* Spoiler style for Token */
+.nav-link:hover:not(.active) {
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+/* Spoiler Effect */
 .token-spoiler {
-  filter: blur(8px);
-  cursor: pointer;
+  filter: blur(5px);
   transition: filter 0.3s ease;
   user-select: none;
+  cursor: pointer;
 }
+
 .token-spoiler.revealed {
   filter: blur(0);
-  user-select: text;
+  user-select: all;
 }
