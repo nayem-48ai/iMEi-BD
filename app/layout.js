@@ -4,30 +4,24 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 export default function RootLayout({ children }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <html lang="en">
-      <head>
-        <title>NEIR Advance Portal | Tnayem48</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
-      </head>
       <body>
         <ThemeProvider>
-          <div className="d-flex overflow-hidden">
-            <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
-            <div className="flex-grow-1 min-vh-100 d-flex flex-column" style={{ 
-              marginLeft: isOpen ? '0px' : '0', 
-              transition: '0.3s' 
-            }}>
-              <Navbar toggleSidebar={() => setIsOpen(!isOpen)} />
-              <main className="container-fluid p-3 p-md-4">
-                {children}
-              </main>
+          <AuthProvider>
+            <div className="d-flex">
+              <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+              <div className="flex-grow-1 min-vh-100" style={{ transition: '0.3s' }}>
+                <Navbar toggleSidebar={() => setIsOpen(!isOpen)} />
+                <main className="container py-4">{children}</main>
+              </div>
             </div>
-          </div>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
