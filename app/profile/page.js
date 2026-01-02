@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { Shield, Clock, Eye, EyeOff, Copy } from 'lucide-react';
+import { Calendar, Clock, Shield, User, Eye, EyeOff, Copy } from 'lucide-react';
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState(null);
@@ -9,59 +9,79 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) { window.location.href = '/login'; return; }
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
     try {
       const decoded = jwtDecode(token);
-      const bdTime = new Date(decoded.exp * 1000).toLocaleString('en-GB', { timeZone: 'Asia/Dhaka' });
+      const date = new Date(decoded.exp * 1000);
+      const bdTime = date.toLocaleString('en-GB', { 
+        timeZone: 'Asia/Dhaka',
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      });
       setUserData({ ...decoded, expiryDate: bdTime });
-    } catch (e) { localStorage.removeItem('token'); window.location.href = '/login'; }
+    } catch (e) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
   }, []);
 
   if (!userData) return <div className="p-5 text-center">Loading...</div>;
 
+  const copyToken = () => {
+    navigator.clipboard.writeText(localStorage.getItem('token'));
+    alert("Token copied to clipboard!");
+  };
+
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn">
-      <div className="card border-0 rounded-5 overflow-hidden mx-auto shadow-lg" style={{ maxWidth: '650px' }}>
+    <div className="container py-4">
+      <div className="card border-0 shadow-lg rounded-5 overflow-hidden mx-auto" style={{ maxWidth: '650px' }}>
         <div className="bg-primary p-5 text-white text-center">
-          <h3 className="fw-bold mb-1">{userData.user_data.username}</h3>
-          <span className="badge bg-white text-primary rounded-pill">Citizen Authorization</span>
+          <div className="bg-white text-primary rounded-circle d-inline-flex p-3 mb-3 shadow">
+            <User size={50} />
+          </div>
+          <h3 className="fw-bold mb-0">{userData.user_data.username}</h3>
+          <p className="opacity-75">Citizen Access Token</p>
         </div>
         
         <div className="card-body p-4">
-          <div className="row g-3 mb-4">
-            <div className="col-6">
-              <div className="p-3 bg-body-tertiary rounded-4">
-                <small className="text-muted d-block">NID Number</small>
-                <span className="fw-bold">{userData.user_data.docId}</span>
+          <div className="row g-3">
+            <div className="col-md-6">
+              <div className="p-3 rounded-4" style={{ background: 'rgba(var(--primary-rgb), 0.1)', border: '1px solid var(--border-color)' }}>
+                <small className="opacity-50 d-block">Document ID (NID)</small>
+                <div className="fw-bold fs-5">{userData.user_data.docId}</div>
               </div>
             </div>
-            <div className="col-6">
-              <div className="p-3 bg-body-tertiary rounded-4">
-                <small className="text-muted d-block">Session Expires</small>
-                <span className="fw-bold small">{userData.expiryDate.split(',')[0]}</span>
+            <div className="col-md-6">
+              <div className="p-3 rounded-4" style={{ background: 'rgba(var(--primary-rgb), 0.1)', border: '1px solid var(--border-color)' }}>
+                <small className="opacity-50 d-block">Phone Number</small>
+                <div className="fw-bold fs-5">{userData.user_data.msisdn}</div>
+              </div>
+            </div>
+            <div className="col-12">
+              <div className="p-4 rounded-4 border-start border-4 border-warning bg-warning-subtle text-dark">
+                <h6 className="fw-bold d-flex align-items-center gap-2"><Clock size={18}/> Expiry (BD Time)</h6>
+                <div className="fs-5 fw-bold">{userData.expiryDate}</div>
               </div>
             </div>
           </div>
-
-          <div className="p-4 border rounded-4 bg-body-tertiary position-relative">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h6 className="fw-bold m-0 d-flex align-items-center gap-2">
-                <Shield size={18} className="text-primary"/> Encoded Auth Key
-              </h6>
+          
+          <div className="mt-4 p-3 rounded-4" style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <small className="opacity-50 fw-bold text-uppercase">Auth Token (Spoiler)</small>
               <div className="d-flex gap-2">
-                <button className="btn btn-sm btn-light rounded-circle" onClick={() => setShowToken(!showToken)}>
+                <button className="btn btn-sm btn-light p-1" onClick={() => setShowToken(!showToken)}>
                   {showToken ? <EyeOff size={16}/> : <Eye size={16}/>}
                 </button>
-                <button className="btn btn-sm btn-light rounded-circle" onClick={() => {
-                  navigator.clipboard.writeText(localStorage.getItem('token'));
-                  alert("Copied!");
-                }}><Copy size={16}/></button>
+                <button className="btn btn-sm btn-light p-1" onClick={copyToken}><Copy size={16}/></button>
               </div>
             </div>
-            <div className={`token-spoiler p-2 rounded small bg-dark text-light font-monospace overflow-hidden ${showToken ? 'revealed' : ''}`} style={{ maxHeight: '100px' }}>
+            <div className={`token-spoiler x-small text-break ${showToken ? 'revealed' : ''}`} 
+                 style={{ fontFamily: 'monospace', fontSize: '12px' }}>
               {localStorage.getItem('token')}
             </div>
-            {!showToken && <div className="position-absolute top-50 start-50 translate-middle text-primary fw-bold">Click Eye to Reveal</div>}
           </div>
         </div>
       </div>
