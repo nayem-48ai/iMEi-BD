@@ -1,45 +1,30 @@
 :root {
-  --primary-color: #007bff;
-  --bg-light: #f8f9fa;
-  --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --primary-color: #0d6efd;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-bs-theme='dark'] {
-  --bg-light: #121212;
+.transition-all { transition: var(--transition); }
+
+.hover-bg:hover {
+  background-color: rgba(13, 110, 253, 0.08);
+  color: var(--primary-color) !important;
 }
 
-body {
-  background-color: var(--bg-light);
-  font-family: 'Inter', sans-serif;
-  transition: background 0.3s ease;
+.shadow-primary {
+  box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.2);
+}
+
+.nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: white !important;
 }
 
 .card {
-  border-radius: 15px !important;
-  border: none !important;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease;
+  transition: var(--transition);
 }
 
-.card:hover {
-  transform: translateY(-5px);
-}
+/* Scrollbar Style */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
 
-.nav-link {
-  font-weight: 500;
-  color: inherit;
-}
-
-.loading-circle {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+.x-small { font-size: 0.75rem; font-family: monospace; }
