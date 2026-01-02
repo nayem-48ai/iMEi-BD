@@ -1,91 +1,37 @@
-body {
-  background-color: #f8f9fc;
-  font-family: 'Inter', sans-serif;
+/* Loading Circle Animation */
+.loader-circle {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #4361ee;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.sidebar {
-  width: 280px;
-  height: 100vh;
-  position: fixed;
-  z-index: 1000;
-  transition: all 0.3s ease;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.main-content {
-  margin-left: 280px;
-  transition: all 0.3s ease;
-}
-
-.active-menu {
-  background-color: #4e73df !important;
-  color: white !important;
-  box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+.login-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .glass-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
   border: none;
-  border-radius: 1.25rem;
-  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .sidebar {
-    left: -280px;
-  }
-  .sidebar.active {
-    left: 0;
-  }
-  .main-content {
-    margin-left: 0;
-  }
-  .backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-  }
 }
 
 .btn-primary {
-  padding: 0.8rem 2rem;
-  font-weight: 600;
-  border-radius: 10px;
+  background-color: #4361ee;
+  border: none;
+  border-radius: 12px;
+  transition: all 0.3s;
 }
 
-.status-badge {
-  padding: 8px 16px;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 600;
+.btn-primary:hover {
+  transform: scale(1.02);
+  background-color: #3046bc;
 }
-
-
-.sidebar-nav {
-  width: 280px;
-  height: 100vh;
-  position: fixed;
-  left: 0;
-  z-index: 1050;
-  transition: 0.3s;
-}
-
-.main-body { margin-left: 280px; transition: 0.3s; min-height: 100vh; background: #f4f7fe; }
-
-.active-link { background: #4361ee; color: white !important; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); }
-
-.glass-card { background: white; border-radius: 24px; }
-
-@media (max-width: 768px) {
-  .sidebar-nav { left: -280px; }
-  .sidebar-nav.show { left: 0; }
-  .main-body { margin-left: 0; }
-  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
-}
-
-.custom-search { border-radius: 50px; overflow: hidden; background: #f8f9fa; border: 1px solid #eee; }
-.custom-search input:focus { box-shadow: none; background: #fff; }
