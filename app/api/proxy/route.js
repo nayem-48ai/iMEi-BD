@@ -2,36 +2,31 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { url, payload, token } = await request.json();
-    let finalToken = token;
+    const { url, payload, method = 'POST', token } = await request.json();
 
-    // যদি ইউজার টোকেন না থাকে, তবে অটোমেটিক আপনার ডিফল্ট টোকেন নিবে
-    if (!finalToken) {
-      const authRes = await fetch('https://neir.btrc.gov.bd/api/authenticate-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: "tnayem48", password: "Torikul$48" })
-      });
-      const authData = await authRes.json();
-      finalToken = authData.idToken;
+    const headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 13; RMX3286) AppleWebKit/537.36',
+      'Accept': 'application/json, text/plain, */*',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${finalToken}`,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Referer': 'https://neir.btrc.gov.bd/',
-        'Origin': 'https://neir.btrc.gov.bd'
-      },
-      body: JSON.stringify(payload),
-    });
+    const fetchOptions = {
+      method: method,
+      headers: headers,
+    };
 
+    if (method !== 'GET' && payload) {
+      fetchOptions.body = JSON.stringify(payload);
+    }
+
+    const response = await fetch(url, fetchOptions);
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Proxy Error:", error);
-    return NextResponse.json({ success: false, message: "Server connection failed" }, { status: 500 });
+    return NextResponse.json({ success: false, message: "BTRC Server Connection Failed" }, { status: 500 });
   }
 }
