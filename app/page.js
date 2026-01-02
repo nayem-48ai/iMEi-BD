@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { Smartphone, CheckCircle, XCircle } from 'lucide-react';
 
-export default function HomePage() {
+function ImeiContent() {
   const [imei, setImei] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -15,10 +16,10 @@ export default function HomePage() {
       setImei(urlImei);
       checkImei(urlImei);
     }
-  }, []);
+  }, [searchParams]);
 
   const checkImei = async (targetImei = imei) => {
-    if (!targetImei) return;
+    if (!targetImei || targetImei.length < 14) return;
     setLoading(true);
     try {
       const res = await fetch('/api/proxy', {
@@ -31,19 +32,24 @@ export default function HomePage() {
       const data = await res.json();
       setResult(data);
     } catch (err) {
-      alert("Error checking IMEI");
+      console.error(err);
     }
     setLoading(false);
   };
 
   return (
-    <div className="card shadow-sm border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: '600px' }}>
-      <h3 className="text-center mb-4">Check IMEI Status</h3>
-      <div className="input-group mb-3">
+    <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto mt-5" style={{ maxWidth: '600px' }}>
+      <div className="text-center mb-4">
+        <Smartphone size={48} className="text-primary mb-2" />
+        <h2 className="fw-bold">IMEI Status Check</h2>
+        <p className="text-muted">Enter your 15-digit IMEI number below</p>
+      </div>
+
+      <div className="input-group input-group-lg mb-3 shadow-sm">
         <input 
           type="text" 
-          className="form-control form-control-lg" 
-          placeholder="Enter 15 digit IMEI"
+          className="form-control border-0" 
+          placeholder="e.g. 860496059396795"
           value={imei}
           onChange={(e) => setImei(e.target.value)}
         />
@@ -53,21 +59,36 @@ export default function HomePage() {
       </div>
 
       {result && (
-        <div className={`alert mt-4 ${result.replyMessage?.msg === 'WL' ? 'alert-success' : 'alert-danger'} border-0 shadow-sm`}>
-          <div className="d-flex align-items-center">
-            <div className="flex-grow-1">
-              <strong>IMEI: {result.replyMessage?.imei}</strong>
-              <p className="mb-0 mt-2">
+        <div className={`card mt-4 border-0 ${result.replyMessage?.msg === 'WL' ? 'bg-success-subtle' : 'bg-danger-subtle'} animate__animated animate__fadeIn`}>
+          <div className="card-body d-flex align-items-start gap-3">
+            {result.replyMessage?.msg === 'WL' ? 
+              <CheckCircle className="text-success mt-1" size={24} /> : 
+              <XCircle className="text-danger mt-1" size={24} />
+            }
+            <div>
+              <h5 className={`mb-1 ${result.replyMessage?.msg === 'WL' ? 'text-success' : 'text-danger'}`}>
+                {result.replyMessage?.msg === 'WL' ? "Valid IMEI" : "Invalid / Not Found"}
+              </h5>
+              <p className="mb-0 text-dark">
                 {result.replyMessage?.msg === 'WL' 
                   ? `IMEI নম্বর ${result.replyMessage?.imei} NEIR সিস্টেমে নিবন্ধিত রয়েছে এবং ব্যবহৃত হচ্ছে।`
                   : `IMEI নম্বর ${result.replyMessage?.imei} নিবন্ধিত নয় / বৈধতা যাচাই সম্ভব নয়।`
                 }
               </p>
-              <small className="text-muted mt-2 d-block text-end">Powered by Tnayem48</small>
+              <hr />
+              <small className="text-muted fw-bold">Admin: Tnayem48</small>
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-5"><LoadingSpinner /></div>}>
+      <ImeiContent />
+    </Suspense>
   );
 }
