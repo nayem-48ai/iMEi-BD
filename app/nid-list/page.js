@@ -1,71 +1,91 @@
 "use client";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { motion } from 'framer-motion';
 
 export default function NidList() {
-    const { user, getValidToken } = useAuth();
+    const { user, token, isLoggedIn } = useAuth();
     const [nid, setNid] = useState('');
     const [regList, setRegList] = useState([]);
+    const [restList, setRestList] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    // লগইন থাকলে অটোমেটিক NID সেট হবে
     useEffect(() => {
-        if (user && user.docId) {
+        if (isLoggedIn && user?.docId) {
             setNid(user.docId);
         }
-    }, [user]);
+    }, [isLoggedIn, user]);
 
     const fetchData = async () => {
-        if (!nid) return alert("NID নম্বর দিন");
+        if (!nid) return alert("NID নম্বর প্রদান করুন");
         setLoading(true);
         try {
-            const token = await getValidToken(); // Always get a fresh token
-            
-            const res = await axios.post('/api/proxy', {
-                url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/doc_imei_list',
-                token: token,
-                payload: { docId: nid, docType: "SNID" }
-            });
+            // API calls with authorization
+            const config = {
+                url: '', // Will be set in proxy
+                payload: { docId: nid, docType: "SNID" },
+                token: token // Passing the dynamic token
+            };
 
-            if (res.data.success) {
-                setRegList(res.data.replyMessage);
-            }
-        } catch (err) { alert("API Connection Error"); }
+            const regRes = await axios.post('/api/proxy', { ...config, url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/doc_imei_list' });
+            setRegList(regRes.data.replyMessage || []);
+
+            const restRes = await axios.post('/api/proxy', { ...config, url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/restricted_imei_list' });
+            setRestList(restRes.data.replyMessage);
+
+        } catch (err) {
+            alert("ডেটা লোড করতে সমস্যা হয়েছে। টোকেন এক্সপায়ার হতে পারে।");
+        }
         setLoading(false);
     };
 
+    const renderItem = (item) => {
+        const [date, timePart] = item.createdAt.split('T');
+        return (
+            <div className="card mb-3 border-0 shadow-sm p-3 rounded-4 bg-body-tertiary">
+                <div className="d-flex justify-content-between">
+                    <span className="fw-bold text-primary">{item.imei}</span>
+                    <span className="badge bg-success-subtle text-success">{item.regState}</span>
+                </div>
+                <div className="small text-muted mt-2 d-flex justify-content-between">
+                    <span><i className="bi bi-calendar3"></i> {date}</span>
+                    <span><i className="bi bi-clock"></i> {timePart.split('.')[0]}</span>
+                    <span className="fw-bold">{item.tag}</span>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="col-md-10 mx-auto py-3">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card p-4 shadow-lg border-0 rounded-4 mb-4">
-                <h4 className="fw-bold"><i className="bi bi-list-check text-primary"></i> Registered IMEI List</h4>
-                <div className="input-group mt-3">
-                    <input type="text" className="form-control form-control-lg" placeholder="NID Number" value={nid} onChange={(e)=>setNid(e.target.value)} />
+        <div className="container py-2">
+            <div className="card border-0 shadow-sm p-4 rounded-4 mb-4">
+                <h4 className="fw-bold"><i className="bi bi-card-checklist text-primary"></i> NID IMEI List</h4>
+                <p className="text-muted small">আপনার NID দিয়ে নিবন্ধিত সকল IMEI এর তালিকা দেখুন।</p>
+                <div className="input-group">
+                    <input type="text" className="form-control" placeholder="NID Number" 
+                        value={nid} onChange={(e) => setNid(e.target.value)} disabled={isLoggedIn} />
                     <button className="btn btn-primary px-4" onClick={fetchData} disabled={loading}>
-                        {loading ? <LoadingSpinner /> : 'Get Records'}
+                        {loading ? <LoadingSpinner /> : 'Check List'}
                     </button>
                 </div>
-            </motion.div>
+            </div>
 
             <div className="row">
-                {Array.isArray(regList) && regList.map((item, idx) => {
-                    const [date, time] = item.createdAt.split('T');
-                    return (
-                        <div key={idx} className="col-md-6">
-                            <div className="card mb-3 border-0 shadow-sm border-start border-4 border-success rounded-3">
-                                <div className="card-body">
-                                    <h6 className="fw-bold text-primary">IMEI: {item.imei}</h6>
-                                    <div className="small text-muted">
-                                        <p className="mb-1">MSISDN: {item.msisdn}</p>
-                                        <p className="mb-0"><i className="bi bi-calendar"></i> {date} | <i className="bi bi-clock"></i> {time.split('.')[0]}</p>
-                                    </div>
-                                    <span className="badge bg-success mt-2">{item.regState}</span>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                <div className="col-md-6 mb-4">
+                    <h5 className="mb-3 fw-bold text-success">Registered Devices</h5>
+                    {regList.length > 0 ? regList.map((item, i) => renderItem(item)) : <p className="text-muted">কোনো নিবন্ধিত হ্যান্ডসেট পাওয়া যায়নি।</p>}
+                </div>
+                <div className="col-md-6">
+                    <h5 className="mb-3 fw-bold text-danger">Restricted Devices</h5>
+                    {typeof restList === 'string' ? (
+                        <div className="alert alert-info border-0 rounded-4">{restList}</div>
+                    ) : Array.isArray(restList) && restList.length > 0 ? (
+                        restList.map((item, i) => renderItem(item))
+                    ) : <div className="text-muted">রেস্ট্রিকশন লিস্ট খালি।</div>}
+                </div>
             </div>
         </div>
     );
