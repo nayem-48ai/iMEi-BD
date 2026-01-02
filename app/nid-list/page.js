@@ -1,103 +1,101 @@
 "use client";
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { jwtDecode } from 'jwt-decode';
 
 export default function NidListPage() {
-  const [docId, setDocId] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [data, setData] = useState({ registered: [], restricted: null });
   const [loading, setLoading] = useState(false);
-  const [registered, setRegistered] = useState([]);
-  const [restricted, setRestricted] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const decoded = jwtDecode(token);
-      if (decoded.user_data?.docId) {
-        setDocId(decoded.user_data.docId);
-      }
-    }
+    setIsLoggedIn(!!localStorage.getItem('token'));
   }, []);
 
-  const fetchData = async () => {
-    if (!docId) return alert("Please enter NID number");
+  const fetchImeiLists = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-
+    
     try {
-      // Registered List
-      const res1 = await fetch('/api/proxy', {
+      // Registered List (GET)
+      const resReg = await fetch('/api/proxy', {
         method: 'POST',
         body: JSON.stringify({
-          url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/doc_imei_list',
-          payload: { docId, docType: "SNID" },
-          token
+          url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/bound-imeis',
+          method: 'GET',
+          token: token
         })
       });
-      const data1 = await res1.json();
-      setRegistered(Array.isArray(data1.replyMessage) ? data1.replyMessage : []);
+      const regData = await resReg.json();
 
-      // Restricted List
-      const res2 = await fetch('/api/proxy', {
+      // Restricted List (GET)
+      const resRes = await fetch('/api/proxy', {
         method: 'POST',
         body: JSON.stringify({
-          url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/restricted_imei_list',
-          payload: { docId, docType: "SNID" },
-          token
+          url: 'https://neir.btrc.gov.bd/services/NEIRPortalService/api/restricted_imeis',
+          method: 'GET',
+          token: token
         })
       });
-      const data2 = await res2.json();
-      setRestricted(data2.replyMessage);
+      const resData = await resRes.json();
 
+      setData({
+        registered: Array.isArray(regData.replyMessage) ? regData.replyMessage : [],
+        restricted: resData.replyMessage
+      });
     } catch (e) {
-      alert("Error fetching data");
+      alert("Error fetching list. Your token might be expired.");
     }
     setLoading(false);
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="text-center mt-5">
+        <h3>Access Denied</h3>
+        <p>Please login to view your NID IMEI List.</p>
+        <a href="/login" className="btn btn-primary rounded-pill px-4">Login Now</a>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-4">
-      <h3 className="fw-bold mb-4">NID to IMEI Explorer</h3>
-      <div className="card p-4 shadow-sm mb-4 border-0">
-        <div className="input-group">
-          <input 
-            className="form-control form-control-lg" 
-            placeholder="NID Number" 
-            value={docId}
-            onChange={e => setDocId(e.target.value)}
-          />
-          <button className="btn btn-dark px-4" onClick={fetchData} disabled={loading}>
-            {loading ? <LoadingSpinner size="sm" /> : "Search"}
-          </button>
-        </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="fw-bold m-0">My Device Explorer</h3>
+        <button className="btn btn-primary rounded-pill px-4 shadow-sm" onClick={fetchImeiLists} disabled={loading}>
+          {loading ? <LoadingSpinner size="sm" /> : "Fetch My Lists"}
+        </button>
       </div>
 
-      <div className="row">
-        <div className="col-12 mb-4">
-          <h5>Registered IMEI List ({registered.length})</h5>
+      <div className="row g-4">
+        {/* Registered List */}
+        <div className="col-12">
+          <h5 className="mb-3 text-success fw-bold">Registered Devices ({data.registered.length})</h5>
           <div className="row g-3">
-            {registered.length > 0 ? registered.map((item, idx) => (
-              <div className="col-md-6 col-lg-4" key={idx}>
-                <div className="card h-100 shadow-sm border-start border-success border-4 p-3">
+            {data.registered.length > 0 ? data.registered.map((item, i) => (
+              <div key={i} className="col-md-6 col-lg-4">
+                <div className="card border-0 shadow-sm border-start border-4 border-success p-3 rounded-4 h-100">
                   <div className="d-flex justify-content-between mb-2">
                     <span className="badge bg-success-subtle text-success">{item.regState}</span>
-                    <span className="badge bg-secondary-subtle text-secondary">{item.tag}</span>
+                    <span className="badge bg-light text-dark">{item.tag}</span>
                   </div>
                   <h6 className="fw-bold mb-1">{item.imei}</h6>
-                  <p className="small text-muted mb-2">Number: {item.msisdn === "-1" ? "Not Set" : item.msisdn}</p>
-                  <div className="mt-auto pt-2 border-top small text-muted">
-                    Date: {item.createdAt.split('T')[0]} | Time: {item.createdAt.split('T')[1].substring(0, 5)}
+                  <p className="small text-muted mb-3">MSISDN: {item.msisdn === "-1" ? "Not Set" : item.msisdn}</p>
+                  <div className="mt-auto pt-2 border-top x-small text-muted d-flex justify-content-between">
+                    <span>📅 {item.createdAt.split('T')[0]}</span>
+                    <span>⏰ {item.createdAt.split('T')[1].substring(0, 5)}</span>
                   </div>
                 </div>
               </div>
-            )) : <p className="text-muted">No registered devices found.</p>}
+            )) : <div className="card p-4 text-center border-0 bg-light rounded-4">No data found. Click fetch to reload.</div>}
           </div>
         </div>
 
-        <div className="col-12">
-          <h5>Restricted List</h5>
-          <div className="alert alert-warning border-0 shadow-sm">
-            {typeof restricted === 'string' ? restricted : "No restricted IMEI found for this NID."}
+        {/* Restricted List */}
+        <div className="col-12 mt-5">
+          <h5 className="mb-3 text-danger fw-bold">Restricted Devices</h5>
+          <div className="alert alert-danger border-0 rounded-4 shadow-sm">
+             {typeof data.restricted === 'string' ? data.restricted : "No restricted devices currently listed."}
           </div>
         </div>
       </div>
